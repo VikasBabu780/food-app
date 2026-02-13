@@ -46,19 +46,20 @@ app.use("/api/v1/menu", menuRoute);
 app.use("/api/v1/order", orderRoute);
 
 // Serve Frontend (React SPA) in production
-if (process.env.NODE_ENV === "production") {
-  const staticPath = path.join(DIRNAME, "client/dist");
-  app.use(express.static(staticPath));
+const staticPath = path.join(DIRNAME, "client/dist");
+app.use(express.static(staticPath));
 
-  // Catch-all route must be LAST
-  app.get("*", (_req, res) => {
-    res.sendFile(path.join(staticPath, "index.html"));
-  });
-}
+// Catch-all route for SPA - use this syntax instead of "*"
+app.get("/*", (_req, res) => {
+  res.sendFile(path.join(staticPath, "index.html"));
+});
 
 // Connect to DB before starting server
 connectDB().then(() => {
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
   });
+}).catch((error) => {
+  console.error("Failed to connect to database:", error);
+  process.exit(1);
 });
