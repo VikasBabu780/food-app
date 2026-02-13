@@ -23,7 +23,7 @@ const app = express();
 
 const PORT = process.env.PORT || 8000;
 
-// Safe dirname for your setup
+// Safe dirname - works for both TS and compiled JS
 const DIRNAME = path.resolve();
 
 // Default Middlewares
@@ -32,9 +32,11 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(express.json());
 app.use(cookieParser());
 
-// Cors Options
+// Cors Options - allow production origin
 const corsOptions = {
-    origin: "http://localhost:5173",
+    origin: process.env.NODE_ENV === "production" 
+        ? process.env.CLIENT_URL || true  // Set CLIENT_URL in Render env vars or allow all
+        : "http://localhost:5173",
     credentials: true,
 };
 app.use(cors(corsOptions));
@@ -46,10 +48,15 @@ app.use("/api/v1/menu", menuRoute);
 app.use("/api/v1/order", orderRoute);
 
 // Serve Frontend Build
-app.use(express.static(path.join(DIRNAME,"/client/dist")));
+// When compiled, the JS file is in server/dist/, so we need to go up to root
+const staticPath = process.env.NODE_ENV === "production"
+    ? path.join(DIRNAME, "client/dist")
+    : path.join(DIRNAME, "/client/dist");
 
-app.get(/.*/, (_, res) => {
-    res.sendFile(path.resolve(DIRNAME,"client","dist","index.html"));
+app.use(express.static(staticPath));
+
+app.get("*", (_, res) => {
+    res.sendFile(path.join(staticPath, "index.html"));
 });
 
 // Start Server

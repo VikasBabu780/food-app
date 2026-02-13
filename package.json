@@ -3,12 +3,12 @@
   "version": "1.0.0",
   "description": "",
   "main": "dist/server/index.js",
+  
   "scripts": {
-  "dev": "nodemon server/index.ts",
-  "stripe": "stripe listen --forward-to localhost:8000/api/v1/order/webhook",
-  "build": "npm install && npm install --prefix client && npm run build --prefix client",
-  "start": "nodemon server/index.ts"
-
+    "dev": "nodemon server/index.ts",
+    "stripe": "stripe listen --forward-to localhost:8000/api/v1/order/webhook",
+    "build": "npm install && npm install --prefix client && npm run build --prefix client && tsc -p server/tsconfig.json",
+    "start": "NODE_ENV=production node --max-old-space-size=512 server/dist/index.js"
   },
   "keywords": [],
   "author": "",
