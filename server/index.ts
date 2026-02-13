@@ -46,12 +46,10 @@ app.use("/api/v1/menu", menuRoute);
 app.use("/api/v1/order", orderRoute);
 
 // Serve Frontend Build
-const clientPath = path.join(DIRNAME, "client", "dist");
-
-app.use(express.static(clientPath));
+app.use(express.static(path.join(DIRNAME,"/client/dist")));
 
 app.get(/.*/, (_, res) => {
-    res.sendFile(path.join(clientPath, "index.html"));
+    res.sendFile(path.resolve(DIRNAME,"client","dist","index.html"));
 });
 
 // Start Server
