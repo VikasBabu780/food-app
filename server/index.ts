@@ -39,18 +39,18 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
-// API Routes
+// API Routes - MUST come before static files
 app.use("/api/v1/user", UserRoute);
 app.use("/api/v1/restaurant", restaurantRoute);
 app.use("/api/v1/menu", menuRoute);
 app.use("/api/v1/order", orderRoute);
 
-// Serve Frontend (React SPA) in production
+// Serve Frontend static files
 const staticPath = path.join(DIRNAME, "client/dist");
 app.use(express.static(staticPath));
 
-// Catch-all route for SPA - use this syntax instead of "*"
-app.get("/*", (_req, res) => {
+// SPA fallback - use middleware function instead of route
+app.use((req, res) => {
   res.sendFile(path.join(staticPath, "index.html"));
 });
 
