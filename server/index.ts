@@ -34,7 +34,7 @@ const corsOptions = {
   origin:
     process.env.NODE_ENV === "production"
       ? process.env.CLIENT_URL || true
-      : "http://localhost:5173",
+      : "https://food-app-ox0d.onrender.com",
   credentials: true,
 };
 app.use(cors(corsOptions));
