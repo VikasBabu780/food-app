@@ -4,7 +4,7 @@ import axios from "axios";
 import { toast } from "sonner";
 import { create } from "zustand";
 
-const API_END_POINT = "http://localhost:8000/api/v1/restaurant";
+const API_END_POINT = "http://localhost:5173/api/v1/restaurant";
 axios.defaults.withCredentials = true;
 
 // Helper function for error handling

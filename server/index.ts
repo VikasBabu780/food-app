@@ -31,10 +31,10 @@ app.use(cookieParser());
 
 // CORS setup
 const corsOptions = {
-  origin: "http://localhost:5173",
-    // process.env.NODE_ENV === "production"
-    //   ? process.env.CLIENT_URL || true
-    //   : "http://localhost:5173",
+  origin:
+    process.env.NODE_ENV === "production"
+      ? process.env.CLIENT_URL || true
+      : "http://localhost:5173",
   credentials: true,
 };
 app.use(cors(corsOptions));
