@@ -4,7 +4,7 @@ import axios from "axios";
 import type { SignupInputState } from "@/schema/userSchema";
 import { toast } from "sonner";
 
-const API_END_POINT = "http://localhost:5173/api/v1/user";
+const API_END_POINT = "https://food-app-1-mo4h.onrender.com/api/v1/user";
 axios.defaults.withCredentials = true;
 
 // Define User type
