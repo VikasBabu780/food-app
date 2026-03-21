@@ -34,7 +34,7 @@ const corsOptions = {
   origin:
     process.env.NODE_ENV === "production"
       ? process.env.CLIENT_URL
-      : "food-702jd868r-vikas-babus-projects.vercel.app",
+      : "food-app-psi-nine.vercel.app",
   credentials: true,
 };
 app.use(cors(corsOptions));
