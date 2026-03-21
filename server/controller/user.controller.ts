@@ -5,12 +5,7 @@ import crypto from "crypto";
 import cloudinary from "../utils/cloudinary";
 import { generateVerificationCode } from "../utils/generateVerificationCode";
 import { generateToken } from "../utils/generateToken";
-import {
-  sendPasswordResetEmail,
-  sendResetSuccessEmail,
-  sendVerificationEmail,
-  sendWelcomeEmail,
-} from "../mailtrap/email";
+import { sendWelcomeEmail, sendVerificationEmail,sendPasswordResetEmail,sendResetSuccessEmail } from "../mailer/email";
 
 
 // Sign Up
@@ -26,26 +21,31 @@ export const SignUp = async (req: Request, res: Response) => {
             })
         }
         const hashedPassword = await bcrypt.hash(password, 10);
-        const verificationToken =  generateVerificationCode();
+        const verificationToken = generateVerificationCode();
 
-        user = await User.create({
-            fullname,
-            email,
-            password: hashedPassword,
-            contact: Number(contact),
-            verificationToken,
-            verificationTokenExpiresAt: Date.now() + 24 * 60 * 60 * 1000,
-        })
-        generateToken(res,user);
+user = await User.create({
+  fullname,
+  email,
+  password: hashedPassword,
+  contact: Number(contact),
+  verificationToken,
+  verificationTokenExpiresAt: Date.now() + 24 * 60 * 60 * 1000,
+});
 
-        await sendVerificationEmail(email, verificationToken);
+// ✅ CALL EMAIL FIRST
+console.log("🔥 Calling email function...");
+await sendVerificationEmail(email, verificationToken);
 
-        const userWithoutPassword = await User.findOne({ email }).select("-password");
-        return res.status(201).json({
-            success: true,
-            message: "Account created successfully",
-            user: userWithoutPassword
-        });
+// ✅ THEN token + response
+generateToken(res, user);
+
+const userWithoutPassword = await User.findOne({ email }).select("-password");
+
+return res.status(201).json({
+  success: true,
+  message: "Account created successfully",
+  user: userWithoutPassword
+});
     } catch (error) {
         console.log(error);
         return res.status(500).json({ message: "Internal server error" })

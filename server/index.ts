@@ -31,10 +31,10 @@ app.use(cookieParser());
 
 // CORS setup
 const corsOptions = {
-  origin:
-    process.env.NODE_ENV === "production"
-      ? process.env.CLIENT_URL || true
-      : "https://food-app-ox0d.onrender.com",
+  origin: "http://localhost:5173",
+    // process.env.NODE_ENV === "production"
+    //   ? process.env.CLIENT_URL || true
+    //   : "http://localhost:5173",
   credentials: true,
 };
 app.use(cors(corsOptions));

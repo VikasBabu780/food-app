@@ -3,7 +3,13 @@ import { Restaurant } from "../models/restaurant.model";
 import { Order } from "../models/order.model";
 import Stripe from "stripe";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+//  Lazy getter — only runs when a function is called, not on import
+const getStripe = () => {
+  if (!process.env.STRIPE_SECRET_KEY) {
+    throw new Error("STRIPE_SECRET_KEY is not defined in .env");
+  }
+  return new Stripe(process.env.STRIPE_SECRET_KEY);
+};
 
 type CheckoutSessionRequest = {
   cartItems: {
@@ -27,38 +33,30 @@ export const getOrders = async (req: Request, res: Response) => {
     const orders = await Order.find({ user: req.id })
       .populate("user")
       .populate("restaurant");
-    return res.status(200).json({
-      success: true,
-      orders,
-    });
+    return res.status(200).json({ success: true, orders });
   } catch (error) {
     console.log(error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Internal server error" });
+    return res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
 
 export const createCheckoutSession = async (req: Request, res: Response) => {
   try {
+    const stripe = getStripe(); //  initialized here, env vars already loaded
     const checkoutSessionRequest: CheckoutSessionRequest = req.body;
 
     const restaurant = await Restaurant.findById(
-      checkoutSessionRequest.restaurantId,
+      checkoutSessionRequest.restaurantId
     ).populate("menus");
 
     if (!restaurant) {
-      return res.status(404).json({
-        success: false,
-        message: "Restaurant not found.",
-      });
+      return res.status(404).json({ success: false, message: "Restaurant not found." });
     }
 
     const totalAmount = checkoutSessionRequest.cartItems.reduce(
       (acc, item) => acc + item.price * item.quantity,
-      0,
+      0
     );
-    
 
     const order: any = new Order({
       restaurant: restaurant._id,
@@ -74,9 +72,7 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
-      shipping_address_collection: {
-        allowed_countries: ["GB", "US", "CA"],
-      },
+      shipping_address_collection: { allowed_countries: ["GB", "US", "CA"] },
       line_items: lineItems,
       mode: "payment",
       success_url: `${process.env.FRONTEND_URL}/order/status`,
@@ -88,7 +84,6 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
     });
 
     await order.save();
-
     return res.status(200).json({ session });
   } catch (error) {
     console.log(error);
@@ -97,29 +92,24 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
 };
 
 export const stripeWebhook = async (req: Request, res: Response) => {
+  const stripe = getStripe(); // ✅ initialized here
   let event;
 
   try {
-    const signature = req.headers["stripe-signature"];
-
-    // Construct the payload string for verification
     const payloadString = JSON.stringify(req.body, null, 2);
     const secret = process.env.WEBHOOK_ENDPOINT_SECRET!;
 
-    // Generate test header string for event construction
     const header = stripe.webhooks.generateTestHeaderString({
       payload: payloadString,
       secret,
     });
 
-    // Construct the event using the payload string and header
     event = stripe.webhooks.constructEvent(payloadString, header, secret);
   } catch (error: any) {
     console.error("Webhook error:", error.message);
     return res.status(400).send(`Webhook error: ${error.message}`);
   }
 
-  // Handle the checkout session completed event
   if (event.type === "checkout.session.completed") {
     try {
       const session = event.data.object as Stripe.Checkout.Session;
@@ -129,31 +119,27 @@ export const stripeWebhook = async (req: Request, res: Response) => {
         return res.status(404).json({ message: "Order not found" });
       }
 
-      // Update the order with the amount and status
       if (session.amount_total) {
         order.totalAmount = session.amount_total;
       }
       order.status = "confirmed";
-
       await order.save();
     } catch (error) {
       console.error("Error handling event:", error);
       return res.status(500).json({ message: "Internal Server Error" });
     }
   }
-  // Send a 200 response to acknowledge receipt of the event
+
   res.status(200).send();
 };
 
-
 export const createLineItems = (
   checkoutSessionRequest: CheckoutSessionRequest,
-  menuItems: any,
+  menuItems: any
 ) => {
-  // 1. create line items
-  const lineItems = checkoutSessionRequest.cartItems.map((cartItem) => {
+  return checkoutSessionRequest.cartItems.map((cartItem) => {
     const menuItem = menuItems.find(
-      (item: any) => item._id.toString() === cartItem.menuId,
+      (item: any) => item._id.toString() === cartItem.menuId
     );
     if (!menuItem) throw new Error(`Menu item id not found`);
 
@@ -169,6 +155,4 @@ export const createLineItems = (
       quantity: cartItem.quantity,
     };
   });
-  // 2. return lineItems
-  return lineItems;
 };

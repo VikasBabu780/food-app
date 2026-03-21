@@ -95,7 +95,7 @@ export const htmlContent: string = `
       </div>
 
       <div class="footer">
-        © 2024 Your Company. All rights reserved.
+        © 2026 Your Company. All rights reserved.
       </div>
     </div>
   </div>
@@ -151,19 +151,19 @@ export const generateWelcomeEmailHtml = (name: string) => {
 <body>
   <div class="container">
     <div class="header">
-      <h1>Welcome to Patel Food 🍽️</h1>
+      <h1>Welcome to Food Swift🍽️</h1>
     </div>
 
     <div class="body">
       <p>Hi <strong>${name}</strong>,</p>
       <p>Your email has been successfully verified. We're excited to have you with us!</p>
-      <p>Start exploring delicious meals and amazing restaurants on Patel Food.</p>
+      <p>Start exploring delicious meals and amazing restaurants on Food Swift.</p>
       <p>If you need any help, we’re always here for you.</p>
-      <p><strong>The Patel Food Team</strong></p>
+      <p><strong>The Food Swift Team</strong></p>
     </div>
 
     <div class="footer">
-      © 2024 Patel Food. All rights reserved.
+      © 2024 Food Swift. All rights reserved.
     </div>
   </div>
 </body>
@@ -241,11 +241,11 @@ export const generatePasswordResetEmailHtml = (resetURL: string) => {
       <a href="${resetURL}" class="button">Reset Password</a>
 
       <p>If you didn’t request this, ignore this email.</p>
-      <p><strong>Patel Food Team</strong></p>
+      <p><strong>Food Swift Team</strong></p>
     </div>
 
     <div class="footer">
-      © 2024 Patel Food. All rights reserved.
+      © 2024 Food Swift. All rights reserved.
     </div>
   </div>
 </body>
@@ -308,11 +308,11 @@ export const generateResetSuccessEmailHtml = () => {
       <p>Your password has been successfully reset.</p>
       <p>You can now log in using your new password.</p>
       <p>If this wasn’t you, please contact support immediately.</p>
-      <p><strong>Patel Food Team</strong></p>
+      <p><strong>Food Swift Team</strong></p>
     </div>
 
     <div class="footer">
-      © 2024 Patel Food. All rights reserved.
+      © 2024 Food Swift. All rights reserved.
     </div>
   </div>
 </body>
