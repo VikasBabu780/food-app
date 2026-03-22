@@ -82,6 +82,8 @@ export const useUserStore = create<UserState>()(
           } else {
             toast.error("Unexpected error occurred");
           }
+        }finally {
+          set({ loading: false }); //  ALWAYS resets — moved here
         }
       },
 
@@ -149,6 +151,8 @@ export const useUserStore = create<UserState>()(
           } else {
             toast.error("Unexpected error occurred");
           }
+        }finally {
+          set({ loading: false }); //  ALWAYS resets — moved here
         }
       },
 
@@ -200,6 +204,8 @@ export const useUserStore = create<UserState>()(
           } else {
             toast.error("Unexpected error occurred");
           }
+        }finally {
+          set({ loading: false }); //  ALWAYS resets — moved here
         }
       },
 
