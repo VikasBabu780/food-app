@@ -163,7 +163,7 @@ export const useUserStore = create<UserState>()(
         try {
           set({ isCheckingAuth: true });
 
-          const res = await axios.get("/api/v1/user/check-auth");
+          const res = await axios.get(`${API_END_POINT}/check-auth`);
 
           set({
             user: res.data.user,
@@ -183,7 +183,7 @@ export const useUserStore = create<UserState>()(
         }
       },
 
-      
+
       // Logout
       logout: async () => {
         try {
