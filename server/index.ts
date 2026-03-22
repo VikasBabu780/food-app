@@ -31,10 +31,7 @@ app.use(cookieParser());
 
 // CORS setup
 const corsOptions = {
-  origin:
-    process.env.NODE_ENV === "production"
-      ? process.env.CLIENT_URL
-      : "https://food-app-psi-nine.vercel.app",
+  origin: "https://food-app-psi-nine.vercel.app",
   credentials: true,
 };
 app.use(cors(corsOptions));
@@ -50,10 +47,12 @@ const staticPath = path.join(DIRNAME, "client/dist");
 app.use(express.static(staticPath));
 
 // SPA fallback - use middleware function instead of route
-app.use((req, res) => {
+app.use((req, res, next) => {
+  if (req.originalUrl.startsWith("/api")) {
+    return res.status(404).json({ message: "API route not found" });
+  }
   res.sendFile(path.join(staticPath, "index.html"));
 });
-
 // Connect to DB before starting server
 connectDB().then(() => {
   app.listen(PORT, () => {
