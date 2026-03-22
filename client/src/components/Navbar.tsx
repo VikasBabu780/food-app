@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import {
   Menubar,
   MenubarContent,
@@ -44,7 +44,10 @@ import { useThemeStore } from "@/store/useThemeStore";
 const Navbar = () => {
   const { user, loading, logout } = useUserStore();
   const { cart } = useCartStore();
-  const {setTheme} = useThemeStore()
+  const { setTheme } = useThemeStore();
+  const location = useLocation(); // <-- get current path
+
+  const isHomePage = location.pathname === "/";
 
   return (
     <div className="max-w-7xl mx-auto px-4">
@@ -108,8 +111,12 @@ const Navbar = () => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => setTheme('light')}>Light</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setTheme('dark')}>Dark</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setTheme("light")}>
+                  Light
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setTheme("dark")}>
+                  Dark
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
 
@@ -123,25 +130,40 @@ const Navbar = () => {
               )}
             </Link>
 
-            {/* Avatar */}
-            <Avatar className="h-9 w-9">
-              <AvatarImage src={user?.profilePicture}/>
-              <AvatarFallback>CN</AvatarFallback>
-            </Avatar>
-
-            {/* Logout */}
-            {loading ? (
-              <Button disabled className="bg-orange-500">
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Please wait
-              </Button>
+            {/* Conditional Login / Logout */}
+            {isHomePage && !user ? (
+              <>
+                <Link to="/login">
+                  <Button className="bg-orange-500 hover:bg-orange-600">
+                    Login
+                  </Button>
+                </Link>
+                <Link to="/signup">
+                  <Button className="bg-gray-500 hover:bg-gray-600">
+                    Register
+                  </Button>
+                </Link>
+              </>
             ) : (
-              <Button
-                onClick={logout}
-                className="bg-orange-500 hover:bg-orange-600"
-              >
-                Logout
-              </Button>
+              <>
+                <Avatar className="h-9 w-9">
+                  <AvatarImage src={user?.profilePicture} />
+                  <AvatarFallback>CN</AvatarFallback>
+                </Avatar>
+                {loading ? (
+                  <Button disabled className="bg-orange-500">
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Please wait
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={logout}
+                    className="bg-orange-500 hover:bg-orange-600"
+                  >
+                    Logout
+                  </Button>
+                )}
+              </>
             )}
           </div>
         </div>
@@ -157,10 +179,13 @@ const Navbar = () => {
 
 export default Navbar;
 
+// Mobile Navbar
 const MobileNavbar = () => {
   const { user, logout, loading } = useUserStore();
-  const {setTheme} = useThemeStore()
- 
+  const { setTheme } = useThemeStore();
+  const location = useLocation(); // <-- detect path
+  const isHomePage = location.pathname === "/";
+
   const linkStyle =
     "flex items-center gap-4 px-3 py-2 rounded-lg cursor-pointer font-medium transition " +
     "hover:bg-gray-200 dark:hover:bg-gray-800 " +
@@ -195,8 +220,12 @@ const MobileNavbar = () => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setTheme('light')}>Light</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTheme('dark')}>Dark</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme("light")}>
+                Light
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme("dark")}>
+                Dark
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </SheetHeader>
@@ -242,29 +271,46 @@ const MobileNavbar = () => {
 
         {/* Footer */}
         <SheetFooter className="flex flex-col gap-4">
-          <div className="flex items-center gap-3">
-            <Avatar className="h-9 w-9">
-              <AvatarImage src={user?.profilePicture}/>
-              <AvatarFallback>CN</AvatarFallback>
-            </Avatar>
-            <h1 className="font-bold">{user?.fullname}</h1>
-          </div>
+          {isHomePage && !user ? (
+            <div className="flex flex-col gap-2">
+              <Link to="/login">
+                <Button className="bg-orange-500 hover:bg-orange-600 w-full">
+                  Login
+                </Button>
+              </Link>
+              <Link to="/signup">
+                <Button className="bg-gray-500 hover:bg-gray-600 w-full">
+                  Register
+                </Button>
+              </Link>
+            </div>
+          ) : (
+            <>
+              <div className="flex items-center gap-3">
+                <Avatar className="h-9 w-9">
+                  <AvatarImage src={user?.profilePicture} />
+                  <AvatarFallback>CN</AvatarFallback>
+                </Avatar>
+                <h1 className="font-bold">{user?.fullname}</h1>
+              </div>
 
-          <SheetClose asChild>
-            {loading ? (
-              <Button disabled className="bg-orange-500">
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Please wait
-              </Button>
-            ) : (
-              <Button
-                onClick={logout}
-                className="bg-orange-500 hover:bg-orange-600"
-              >
-                Logout
-              </Button>
-            )}
-          </SheetClose>
+              <SheetClose asChild>
+                {loading ? (
+                  <Button disabled className="bg-orange-500">
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Please wait
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={logout}
+                    className="bg-orange-500 hover:bg-orange-600"
+                  >
+                    Logout
+                  </Button>
+                )}
+              </SheetClose>
+            </>
+          )}
         </SheetFooter>
       </SheetContent>
     </Sheet>
