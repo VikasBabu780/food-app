@@ -162,38 +162,28 @@ export const useUserStore = create<UserState>()(
       checkAuthentication: async () => {
         try {
           set({ isCheckingAuth: true });
-          const response = await axios.get(`${API_END_POINT}/check-auth`);
 
-          if (response.data.success) {
-            set({
-              user: response.data.user,
-              isAuthenticated: true,
-              isCheckingAuth: false,
-            });
-          }
-        } catch (error) {
+          const res = await axios.get("/api/v1/user/check-auth");
+
           set({
-            isAuthenticated: false,
-            isCheckingAuth: false,
-            user: null,
+            user: res.data.user,
+            isAuthenticated: true,
           });
+        } catch (error) {
+          console.log(error);
 
-          if (axios.isAxiosError(error)) {
-            if (axios.isAxiosError(error)) {
-              if (error.response?.status !== 401) {
-                toast.error(
-                  error.response?.data?.message || "Something went wrong",
-                );
-              }
-            } else {
-              toast.error("Unexpected error occurred");
-            }
-          } else {
-            toast.error("Unexpected error occurred");
-          }
+          //  IMPORTANT: handle failure properly
+          set({
+            user: null,
+            isAuthenticated: false,
+          });
+        } finally {
+          //  THIS FIXES INFINITE LOADING
+          set({ isCheckingAuth: false });
         }
       },
 
+      
       // Logout
       logout: async () => {
         try {
