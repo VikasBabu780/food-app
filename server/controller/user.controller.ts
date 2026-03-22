@@ -31,7 +31,11 @@ user = await User.create({
   verificationToken,
   verificationTokenExpiresAt: Date.now() + 24 * 60 * 60 * 1000,
 });
-await sendVerificationEmail(email, verificationToken);
+try {
+  await sendVerificationEmail(user.email, verificationToken);
+} catch (error) {
+  console.error("Email failed but continuing:", error);
+}
 
 // THEN token + response
 generateToken(res, user);
