@@ -31,12 +31,9 @@ user = await User.create({
   verificationToken,
   verificationTokenExpiresAt: Date.now() + 24 * 60 * 60 * 1000,
 });
-
-// ✅ CALL EMAIL FIRST
-console.log("🔥 Calling email function...");
 await sendVerificationEmail(email, verificationToken);
 
-// ✅ THEN token + response
+// THEN token + response
 generateToken(res, user);
 
 const userWithoutPassword = await User.findOne({ email }).select("-password");
@@ -260,7 +257,7 @@ export const UpdateProfile = async (req: Request, res: Response) => {
       address,
       city,
       country,
-      profilePicture,
+      profilePicture: cloudResponse.secure_url,
     };
 
     const user = await User.findByIdAndUpdate(userId, updatedData, {

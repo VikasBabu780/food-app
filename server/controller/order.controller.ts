@@ -92,7 +92,7 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
 };
 
 export const stripeWebhook = async (req: Request, res: Response) => {
-  const stripe = getStripe(); // ✅ initialized here
+  const stripe = getStripe(); // nitialized here
   let event;
 
   try {

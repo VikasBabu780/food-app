@@ -19,10 +19,6 @@ export const sendVerificationEmail = async (email: string, verificationToken: st
       text: `Your OTP is ${verificationToken}`,
       html: emailHtml,
     });
-    console.log("Attempting to send email to:", email);         // check recipient
-    console.log("Using EMAIL_USER:", process.env.EMAIL_USER);   // check sender
-    console.log("Token:", verificationToken);   
-    console.log("Full response:", res);  //  see full nodemailer response
   } catch (error) {
     console.error("FULL EMAIL ERROR:", error);  //  see exact error
     throw error;
@@ -38,7 +34,7 @@ export const sendWelcomeEmail = async (email: string, name: string): Promise<voi
       subject: "Welcome to Food Swift",
       html: generateWelcomeEmailHtml(name),
     });
-    console.log("Welcome email sent:", res.response);
+  //  console.log("Welcome email sent:", res.response);
   } catch (error) {
     console.error("Failed to send welcome email:", error);
     throw error;
@@ -54,7 +50,7 @@ export const sendPasswordResetEmail = async (email: string, resetURL: string): P
       subject: "Reset your password",
       html: generatePasswordResetEmailHtml(resetURL),
     });
-    console.log("Password reset email sent:", res.response);
+    // console.log("Password reset email sent:", res.response);
   } catch (error) {
     console.error("Failed to send password reset email:", error);
     throw error;
@@ -70,7 +66,7 @@ export const sendResetSuccessEmail = async (email: string): Promise<void> => {
       subject: "Password Reset Successfully",
       html: generateResetSuccessEmailHtml(),
     });
-    console.log("Reset success email sent:", res.response);
+    // console.log("Reset success email sent:", res.response);
   } catch (error) {
     console.error("Failed to send reset success email:", error);
     throw error;

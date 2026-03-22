@@ -14,7 +14,7 @@ dotenv.config();
 
 // Validate critical environment variables
 if (!process.env.STRIPE_SECRET_KEY) {
-  console.error("ERROR: STRIPE_SECRET_KEY is not defined in .env file");
+  // console.error("ERROR: STRIPE_SECRET_KEY is not defined in .env file");
   process.exit(1);
 }
 

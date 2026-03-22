@@ -21,7 +21,7 @@ export const getTransporter = async () => {
   // ERIFY CONNECTION (VERY IMPORTANT)
   try {
     await _transporter.verify();
-    console.log(" Email server is ready");
+    // console.log(" Email server is ready");
   } catch (err) {
     console.error(" Transporter verification failed:", err);
     throw err;
