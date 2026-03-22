@@ -95,6 +95,7 @@ export const Login = async (req: Request, res: Response) => {
 export const VerifyEmail = async (req: Request, res: Response) => {
   try {
     const { verificationCode } = req.body;
+
     const user = await User.findOne({
       verificationToken: verificationCode,
       verificationTokenExpiresAt: { $gt: Date.now() },
@@ -106,24 +107,32 @@ export const VerifyEmail = async (req: Request, res: Response) => {
         message: "Invalid or Expired Verification Token",
       });
     }
+
     user.isVerified = true;
     user.verificationToken = undefined;
     user.verificationTokenExpiresAt = undefined;
+
     await user.save();
 
-    // send welcome email
-    await sendWelcomeEmail(user.email, user.fullname);
+    //  FIX: don't let email crash API
+    try {
+      await sendWelcomeEmail(user.email, user.fullname);
+    } catch (err) {
+      console.error("Welcome email failed:", err);
+    }
 
     return res.status(200).json({
       success: true,
       message: "Email Verified Successfully.",
       user,
     });
+
   } catch (error) {
-    console.log(error);
-    return res.status(500).json({ massage: "Email Verification Failed" });
+    console.log("VerifyEmail Error:", error);
+    return res.status(500).json({ message: "Email Verification Failed" });
   }
 };
+
 
 // Logout
 export const LogOut = async (_: Request, res: Response) => {
