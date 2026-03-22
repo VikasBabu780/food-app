@@ -91,27 +91,20 @@ export const useUserStore = create<UserState>()(
           set({ loading: true });
 
           const response = await axios.post(`${API_END_POINT}/login`, input, {
-            headers: {
-              "Content-Type": "application/json",
-            },
+            headers: { "Content-Type": "application/json" },
           });
 
           if (response.data.success) {
             const user = response.data.user;
-
             toast.success(response.data.message);
-
-            set({
-              loading: false,
-              user,
-              isAuthenticated: true,
-            });
-
+            set({ user, isAuthenticated: true });
             return user;
+          } else {
+            // Handle success:false case
+            toast.error(response.data.message || "Login failed");
+            return null;
           }
         } catch (error) {
-          set({ loading: false });
-
           if (axios.isAxiosError(error)) {
             toast.error(
               error.response?.data?.message || "Something went wrong",
@@ -119,8 +112,9 @@ export const useUserStore = create<UserState>()(
           } else {
             toast.error("Unexpected error occurred");
           }
-
           return null;
+        } finally {
+          set({ loading: false }); //  ALWAYS resets — moved here
         }
       },
 
@@ -182,7 +176,6 @@ export const useUserStore = create<UserState>()(
           set({ isCheckingAuth: false });
         }
       },
-
 
       // Logout
       logout: async () => {
