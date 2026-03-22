@@ -31,7 +31,7 @@ app.use(cookieParser());
 
 // CORS setup
 const corsOptions = {
-  origin: "https://food-app-psi-nine.vercel.app",
+  origin: "https://food-app-snst.vercel.app",
   credentials: true,
 };
 app.use(cors(corsOptions));
