@@ -28,7 +28,7 @@ export const isAuthenticated = async (
 
     const decode = jwt.verify(
       token,
-      process.env.SECRET_KEY!
+      process.env.JWT_SECRET!
     ) as jwt.JwtPayload;
 
     if (!decode?.userId) {

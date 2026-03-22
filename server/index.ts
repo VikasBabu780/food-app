@@ -2,35 +2,40 @@ import express from "express";
 import dotenv from "dotenv";
 import connectDB from "./db/connectDB";
 import cookieParser from "cookie-parser";
-import cors from "cors";
-import path from "path";
+import cors, { CorsOptions } from "cors";
+
+// Routes
 import UserRoute from "./routes/user.route";
 import restaurantRoute from "./routes/restaurant.route";
 import menuRoute from "./routes/menu.route";
 import orderRoute from "./routes/order.route";
-import { CorsOptions } from "cors";
 
-// Load environment variables
+// Load env
 dotenv.config();
-
-// Validate critical environment variables
-if (!process.env.STRIPE_SECRET_KEY) {
-  // console.error("ERROR: STRIPE_SECRET_KEY is not defined in .env file");
-  process.exit(1);
-}
 
 const app = express();
 const PORT = process.env.PORT || 8000;
 
-// Safe dirname - works for TS and compiled JS
-const DIRNAME = path.resolve();
+//  Validate important env variables (DO NOT crash unless necessary)
+if (!process.env.JWT_SECRET) {
+  console.error("JWT_SECRET is missing");
+}
+
+if (!process.env.MONGO_URI) {
+  console.error("MONGO_URI is missing");
+}
+
+//  Optional (only if using Stripe)
+// if (!process.env.STRIPE_SECRET_KEY) {
+//   console.error("STRIPE_SECRET_KEY is missing");
+// }
 
 // Middlewares
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(cookieParser());
 
-// CORS setup
+//  CORS setup
 const allowedOrigins = [
   "http://localhost:5173",
   process.env.CLIENT_URL as string,
@@ -49,29 +54,39 @@ const corsOptions: CorsOptions = {
 
 app.use(cors(corsOptions));
 
-// API Routes - MUST come before static files
+//  Routes
 app.use("/api/v1/user", UserRoute);
 app.use("/api/v1/restaurant", restaurantRoute);
 app.use("/api/v1/menu", menuRoute);
 app.use("/api/v1/order", orderRoute);
 
-// Serve Frontend static files
-const staticPath = path.join(DIRNAME, "client/dist");
-app.use(express.static(staticPath));
+//  Health check route
+app.get("/", (req, res) => {
+  res.send("API is running...");
+});
 
-// SPA fallback - use middleware function instead of route
-app.use((req, res, next) => {
-  if (req.originalUrl.startsWith("/api")) {
-    return res.status(404).json({ message: "API route not found" });
-  }
-  res.sendFile(path.join(staticPath, "index.html"));
+//  REMOVE frontend static serving (important for your setup)
+
+//  DO NOT USE THIS
+// const staticPath = path.join(__dirname, "client/dist");
+// app.use(express.static(staticPath));
+// app.get("*", (req, res) => {
+//   res.sendFile(path.join(staticPath, "index.html"));
+// });
+
+// Handle unknown API routes
+app.use("/api", (req, res) => {
+  res.status(404).json({ message: "API route not found" });
 });
-// Connect to DB before starting server
-connectDB().then(() => {
-  app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+
+// Connect DB and start server
+connectDB()
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  })
+  .catch((error) => {
+    console.error("Database connection failed:", error);
+    process.exit(1);
   });
-}).catch((error) => {
-  console.error("Failed to connect to database:", error);
-  process.exit(1);
-});
