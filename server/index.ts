@@ -8,6 +8,7 @@ import UserRoute from "./routes/user.route";
 import restaurantRoute from "./routes/restaurant.route";
 import menuRoute from "./routes/menu.route";
 import orderRoute from "./routes/order.route";
+import { CorsOptions } from "cors";
 
 // Load environment variables
 dotenv.config();
@@ -30,10 +31,22 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(cookieParser());
 
 // CORS setup
-const corsOptions = {
-  origin: "https://food-app-snst.vercel.app",
+const allowedOrigins = [
+  "http://localhost:5173",
+  process.env.CLIENT_URL as string,
+];
+
+const corsOptions: CorsOptions = {
+  origin: (origin: string | undefined, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
   credentials: true,
 };
+
 app.use(cors(corsOptions));
 
 // API Routes - MUST come before static files
