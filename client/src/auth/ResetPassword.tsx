@@ -2,15 +2,35 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Loader2, LockKeyholeIcon } from "lucide-react";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom"; // ✅ useParams
+import { useUserStore } from "@/store/useUserStore";
 
 const ResetPassword = () => {
   const [newPassword, setNewPassword] = useState<string>("");
-  const loading = false;
+
+  // get token from URL
+  const { token } = useParams();
+
+  //  Zustand
+  const { resetPassword, loading } = useUserStore();
+
+  // handle submit
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault(); // VERY IMPORTANT
+
+    if (!newPassword || !token) return;
+
+    await resetPassword(token, newPassword);
+  };
 
   return (
     <div className="flex min-h-screen w-full items-center justify-center px-4 py-8 bg-gray-50 dark:bg-gray-900">
-      <form className="bg-white dark:bg-gray-800 w-full max-w-md rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-6 md:p-8">
+      
+      {/* attach onSubmit */}
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white dark:bg-gray-800 w-full max-w-md rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-6 md:p-8"
+      >
         {/* Header */}
         <div className="mb-5 text-center">
           <h1 className="font-extrabold tracking-tight text-3xl sm:text-4xl">
@@ -43,12 +63,15 @@ const ResetPassword = () => {
 
         {/* Submit Button */}
         {loading ? (
-          <Button disabled className="h-11 w-full bg-orange-500">
+          <Button type="submit" disabled className="h-11 w-full bg-orange-500">
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             Please wait
           </Button>
         ) : (
-          <Button className="h-11 w-full bg-orange-500 transition-all hover:bg-orange-600">
+          <Button
+            type="submit" // mportant
+            className="h-11 w-full bg-orange-500 transition-all hover:bg-orange-600"
+          >
             Reset Now
           </Button>
         )}
