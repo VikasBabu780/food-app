@@ -5,52 +5,58 @@ import crypto from "crypto";
 import cloudinary from "../utils/cloudinary";
 import { generateVerificationCode } from "../utils/generateVerificationCode";
 import { generateToken } from "../utils/generateToken";
-import { sendWelcomeEmail, sendVerificationEmail,sendPasswordResetEmail,sendResetSuccessEmail } from "../mailer/email";
-
+import {
+  sendWelcomeEmail,
+  sendVerificationEmail,
+  sendPasswordResetEmail,
+  sendResetSuccessEmail,
+} from "../mailer/email";
 
 // Sign Up
 export const SignUp = async (req: Request, res: Response) => {
-    try {
-        const { fullname, email, password, contact } = req.body;
-        
-        let user = await User.findOne({ email });
-        if (user) {
-            return res.status(400).json({
-                success: false,
-                message: "User already exist with this email"
-            })
-        }
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const verificationToken = generateVerificationCode();
+  try {
+    const { fullname, email, password, contact } = req.body;
 
-user = await User.create({
-  fullname,
-  email,
-  password: hashedPassword,
-  contact: Number(contact),
-  verificationToken,
-  verificationTokenExpiresAt: Date.now() + 24 * 60 * 60 * 1000,
-});
-try {
-  await sendVerificationEmail(user.email, verificationToken);
-} catch (error) {
-  console.error("Email failed but continuing:", error);
-}
-
-// THEN token + response
-generateToken(res, user);
-
-const userWithoutPassword = await User.findOne({ email }).select("-password");
-
-return res.status(201).json({
-  success: true,
-  message: "Account created successfully",
-  user: userWithoutPassword
-});
-    } catch (error) {
-        console.log(error);
-        return res.status(500).json({ message: "Internal server error" })
+    let user = await User.findOne({ email });
+    if (user) {
+      return res.status(400).json({
+        success: false,
+        message: "User already exist with this email",
+      });
     }
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const verificationToken = generateVerificationCode();
+
+    user = await User.create({
+      fullname,
+      email,
+      password: hashedPassword,
+      contact: Number(contact),
+      verificationToken,
+      verificationTokenExpiresAt: Date.now() + 24 * 60 * 60 * 1000,
+    });
+    try {
+      await sendVerificationEmail(user.email, verificationToken);
+    } catch (error) {
+      console.error("Email failed but continuing:", error);
+    }
+
+    // THEN token + response
+    generateToken(res, user);
+
+    const userWithoutPassword = await User.findOne({ email }).select(
+      "-password",
+    );
+
+    return res.status(201).json({
+      success: true,
+      message: "Account created successfully",
+      user: userWithoutPassword,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
 };
 
 // Log In
@@ -126,13 +132,11 @@ export const VerifyEmail = async (req: Request, res: Response) => {
       message: "Email Verified Successfully.",
       user,
     });
-
   } catch (error) {
     console.log("VerifyEmail Error:", error);
     return res.status(500).json({ message: "Email Verification Failed" });
   }
 };
-
 
 // Logout
 export const LogOut = async (_: Request, res: Response) => {
@@ -169,7 +173,7 @@ export const ForgotPassword = async (req: Request, res: Response) => {
     // send Email
     await sendPasswordResetEmail(
       user.email,
-      `${process.env.FRONT_END_URL}/resetpassword/${resetToken}`,
+      `${process.env.CLIENT_URL}/reset-password/${resetToken}`,
     );
 
     return res.status(200).json({
@@ -221,7 +225,6 @@ export const ResetPassword = async (req: Request, res: Response) => {
     return res.status(500).json({ message: "Resetting Password Failed" });
   }
 };
-
 
 // Check Authentication
 export const checkAuth = async (req: Request, res: Response) => {
