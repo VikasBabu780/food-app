@@ -71,10 +71,10 @@ const Navbar = () => {
               Profile
             </Link>
             <Link
-              to="/order/status"
+              to="/orders"
               className="hover:text-orange-500 transition"
             >
-              Order
+              Orders
             </Link>
 
             {user?.admin && (
@@ -91,7 +91,7 @@ const Navbar = () => {
                       <MenubarItem>Menu</MenubarItem>
                     </Link>
                     <Link to="/admin/orders">
-                      <MenubarItem>Orders</MenubarItem>
+                      <MenubarItem>Restaurant Orders</MenubarItem>
                     </Link>
                   </MenubarContent>
                 </MenubarMenu>
@@ -239,7 +239,7 @@ const MobileNavbar = () => {
             <span>Profile</span>
           </Link>
 
-          <Link to="/order/status" className={linkStyle}>
+          <Link to="/orders" className={linkStyle}>
             <HandPlatter />
             <span>Orders</span>
           </Link>

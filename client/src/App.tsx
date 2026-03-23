@@ -26,7 +26,6 @@ import Orders from "./admin/Orders";
 
 import { useUserStore } from "./store/useUserStore";
 
-
 //  Protected Route (Auth + Verification)
 const ProtectedRoutes = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated, user, isCheckingAuth } = useUserStore();
@@ -44,7 +43,6 @@ const ProtectedRoutes = ({ children }: { children: React.ReactNode }) => {
   return children;
 };
 
-
 //  Prevent logged-in users from accessing auth pages
 const AuthenticatedUser = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated, user, isCheckingAuth } = useUserStore();
@@ -57,7 +55,6 @@ const AuthenticatedUser = ({ children }: { children: React.ReactNode }) => {
 
   return children;
 };
-
 
 //  Admin Route
 const AdminRoute = ({ children }: { children: React.ReactNode }) => {
@@ -75,7 +72,6 @@ const AdminRoute = ({ children }: { children: React.ReactNode }) => {
 
   return children;
 };
-
 
 //  Router Configuration (Production Standard)
 const appRouter = createBrowserRouter([
@@ -111,6 +107,14 @@ const appRouter = createBrowserRouter([
         element: (
           <ProtectedRoutes>
             <Cart />
+          </ProtectedRoutes>
+        ),
+      },
+      {
+        path: "/orders",
+        element: (
+          <ProtectedRoutes>
+            <Success />
           </ProtectedRoutes>
         ),
       },
@@ -185,7 +189,6 @@ const appRouter = createBrowserRouter([
     element: <VerifyEmail />,
   },
 ]);
-
 
 // Main App
 function App() {

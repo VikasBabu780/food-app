@@ -11,16 +11,40 @@ import { useRestaurantStore } from "@/store/useRestaurantStore";
 import { useEffect } from "react";
 
 const Orders = () => {
-  const { restaurantOrder, getRestaurantOrders, updateRestaurantOrder } =
-    useRestaurantStore();
+  const {
+    restaurantOrder,
+    getRestaurantOrders,
+    updateRestaurantOrder,
+    loading,
+  } = useRestaurantStore();
 
   const handleStatusChange = async (id: string, status: string) => {
     await updateRestaurantOrder(id, status);
+    getRestaurantOrders(); // refresh after update
   };
 
   useEffect(() => {
     getRestaurantOrders();
   }, [getRestaurantOrders]);
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="text-center mt-20 text-gray-500">
+        Loading orders...
+      </div>
+    );
+  }
+
+  //  Empty state
+  if (restaurantOrder.length === 0) {
+    return (
+      <div className="text-center mt-20 text-gray-500">
+        No Orders Found
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-6xl mx-auto py-12 px-4 sm:px-6">
       <h1 className="text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white mb-10">
@@ -30,15 +54,15 @@ const Orders = () => {
       <div className="space-y-8">
         {restaurantOrder.map((order) => (
           <div
+            key={order._id} // FIXED
             className="group bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 
-                        rounded-2xl p-6 sm:p-8 shadow-sm hover:shadow-xl transition-all duration-300"
+                       rounded-2xl p-6 sm:p-8 shadow-sm hover:shadow-xl transition-all duration-300"
           >
             <div className="flex flex-col md:flex-row justify-between gap-6">
+              
+              {/* Left Content */}
               <div className="flex-1 space-y-3">
-                <h2
-                  className="text-xl font-semibold text-gray-800 dark:text-gray-100 
-                             group-hover:text-orange-500 transition-colors"
-                >
+                <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100 group-hover:text-orange-500 transition-colors">
                   {order?.deliveryDetails?.name}
                 </h2>
 
@@ -49,10 +73,8 @@ const Orders = () => {
                   {order?.deliveryDetails?.address}
                 </p>
 
-                <div
-                  className="inline-flex items-center gap-2 bg-orange-50 dark:bg-orange-500/10 
-                              text-orange-600 dark:text-orange-400 px-4 py-2 rounded-lg w-fit"
-                >
+                <div className="inline-flex items-center gap-2 bg-orange-50 dark:bg-orange-500/10 
+                                text-orange-600 dark:text-orange-400 px-4 py-2 rounded-lg w-fit">
                   <span className="text-sm font-medium">Total Amount</span>
                   <span className="text-lg font-bold">
                     ₹{order.totalAmount}
@@ -67,40 +89,37 @@ const Orders = () => {
                 </Label>
 
                 <Select
-                  onValueChange={(newstatus) =>
-                    handleStatusChange(order._id, newstatus)
+                  onValueChange={(newStatus) =>
+                    handleStatusChange(order._id, newStatus)
                   }
-                  defaultValue={order.status}
+                  defaultValue={order.status?.toLowerCase()} //  FIXED consistency
                 >
-                  <SelectTrigger
-                    className="h-11 rounded-lg border-gray-300 dark:border-gray-600 
-                                          focus:ring-2 focus:ring-orange-500"
-                  >
+                  <SelectTrigger className="h-11 rounded-lg border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-orange-500">
                     <SelectValue placeholder="Select Status" />
                   </SelectTrigger>
 
                   <SelectContent>
                     <SelectGroup>
                       {[
-                        "Pending",
-                        "Confirmed",
-                        "Preparing",
-                        "OutForDelivery",
-                        "Delivered",
-                      ].map((status, index) => (
+                        "pending",
+                        "confirmed",
+                        "preparing",
+                        "outfordelivery",
+                        "delivered",
+                      ].map((status) => (
                         <SelectItem
-                          key={index}
-                          value={status.toLowerCase()}
-                          className="cursor-pointer focus:bg-orange-50 
-                                   focus:text-orange-600 dark:focus:bg-orange-500/10"
+                          key={status}
+                          value={status}
+                          className="cursor-pointer focus:bg-orange-50 focus:text-orange-600 dark:focus:bg-orange-500/10"
                         >
-                          {status}
+                          {status.charAt(0).toUpperCase() + status.slice(1)}
                         </SelectItem>
                       ))}
                     </SelectGroup>
                   </SelectContent>
                 </Select>
               </div>
+
             </div>
           </div>
         ))}

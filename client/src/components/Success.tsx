@@ -12,7 +12,7 @@ const Success = () => {
   const { isAuthenticated, isCheckingAuth } = useUserStore();
   const location = useLocation();
 
-  // check Stripe success param
+  // detect success param
   const params = new URLSearchParams(location.search);
   const success = params.get("success");
 
@@ -22,34 +22,29 @@ const Success = () => {
     }
   }, [getOrderDetails, isAuthenticated]);
 
-  // wait for auth check
+  // wait for auth
   if (isCheckingAuth) return <p>Loading...</p>;
 
-  //  protect route
+  // protect route
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
 
-  // prevent manual access
-  if (!success) {
-    return <Navigate to="/" replace />;
-  }
-
-  //  loading state
+  // loading state
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <p>Loading order...</p>
+        <p>Loading orders...</p>
       </div>
     );
   }
 
-  //  no orders
+  // no orders
   if (orders.length === 0) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900 px-4">
-        <h1 className="font-bold text-2xl text-gray-700 dark:text-gray-300">
-          Order Not Found !!
+      <div className="flex items-center justify-center min-h-screen">
+        <h1 className="font-bold text-2xl text-gray-500">
+          No orders found
         </h1>
       </div>
     );
@@ -59,23 +54,25 @@ const Success = () => {
     <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900 px-4">
       <div className="bg-white dark:bg-gray-800 shadow-xl rounded-2xl p-6 sm:p-8 max-w-lg w-full">
         
-        {/* Header */}
-        <div className="text-center mb-8">
-          <div className="flex justify-center mb-3">
-            <CheckCircle2 className="h-12 w-12 text-green-500" />
+        {/* Show ONLY after payment */}
+        {success && (
+          <div className="text-center mb-8">
+            <div className="flex justify-center mb-3">
+              <CheckCircle2 className="h-12 w-12 text-green-500" />
+            </div>
+            <h1 className="text-2xl font-extrabold text-gray-800 dark:text-gray-200">
+              Order <span className="text-green-600">CONFIRMED</span>
+            </h1>
+            <p className="text-sm text-gray-500 mt-2">
+              Your order has been placed successfully
+            </p>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-800 dark:text-gray-200">
-            Order <span className="text-green-600">CONFIRMED</span>
-          </h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-            Your order has been placed successfully
-          </p>
-        </div>
+        )}
 
         {/* Orders */}
         <div className="mb-8">
-          <h2 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-4">
-            Order Summary
+          <h2 className="text-lg font-semibold mb-4">
+            {success ? "Order Summary" : "Your Orders"}
           </h2>
 
           {orders.map((order: Orders) => (
