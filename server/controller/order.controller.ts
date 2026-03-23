@@ -75,7 +75,7 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
       shipping_address_collection: { allowed_countries: ["GB", "US", "CA"] },
       line_items: lineItems,
       mode: "payment",
-      success_url: `${process.env.CLIENT_URL}/order/:orderId/status`,
+      success_url: `${process.env.CLIENT_URL}/order/status?success=true`,
       cancel_url: `${process.env.CLIENT_URL}/cart`,
       metadata: {
         orderId: order._id.toString(),
