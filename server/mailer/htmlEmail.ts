@@ -163,7 +163,7 @@ export const generateWelcomeEmailHtml = (name: string) => {
     </div>
 
     <div class="footer">
-      © 2024 Food Swift. All rights reserved.
+      © 2026 Food Swift. All rights reserved.
     </div>
   </div>
 </body>
@@ -245,7 +245,7 @@ export const generatePasswordResetEmailHtml = (resetURL: string) => {
     </div>
 
     <div class="footer">
-      © 2024 Food Swift. All rights reserved.
+      © 2026 Food Swift. All rights reserved.
     </div>
   </div>
 </body>
@@ -312,7 +312,7 @@ export const generateResetSuccessEmailHtml = () => {
     </div>
 
     <div class="footer">
-      © 2024 Food Swift. All rights reserved.
+      © 2026 Food Swift. All rights reserved.
     </div>
   </div>
 </body>
