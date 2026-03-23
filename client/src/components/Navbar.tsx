@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import {
   Menubar,
   MenubarContent,
@@ -18,17 +18,13 @@ import {
   Loader2,
   Menu,
   Moon,
-  PackageCheck,
   ShoppingCart,
-  SquareMenu,
   Sun,
   User,
-  UtensilsCrossed,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import {
   Sheet,
-  SheetClose,
   SheetContent,
   SheetDescription,
   SheetFooter,
@@ -42,12 +38,13 @@ import { useCartStore } from "@/store/useCartStore";
 import { useThemeStore } from "@/store/useThemeStore";
 
 const Navbar = () => {
-  const { user, loading, logout } = useUserStore();
+  const { user, loading, logout, isAuthenticated, isCheckingAuth } =
+    useUserStore();
+
   const { cart } = useCartStore();
   const { setTheme } = useThemeStore();
-  const location = useLocation(); // <-- get current path
 
-  const isHomePage = location.pathname === "/";
+  if (isCheckingAuth) return null; //  prevent flicker
 
   return (
     <div className="max-w-7xl mx-auto px-4">
@@ -60,29 +57,18 @@ const Navbar = () => {
           </h1>
         </Link>
 
-        {/* Desktop Nav */}
+        {/* Desktop */}
         <div className="hidden md:flex items-center gap-10">
           {/* Links */}
           <div className="flex items-center gap-6">
-            <Link to="/" className="hover:text-orange-500 transition">
-              Home
-            </Link>
-            <Link to="/profile" className="hover:text-orange-500 transition">
-              Profile
-            </Link>
-            <Link
-              to="/orders"
-              className="hover:text-orange-500 transition"
-            >
-              Orders
-            </Link>
+            <Link to="/">Home</Link>
+            <Link to="/profile">Profile</Link>
+            <Link to="/orders">Orders</Link>
 
             {user?.admin && (
               <Menubar>
                 <MenubarMenu>
-                  <MenubarTrigger className="cursor-pointer">
-                    Dashboard
-                  </MenubarTrigger>
+                  <MenubarTrigger>Dashboard</MenubarTrigger>
                   <MenubarContent>
                     <Link to="/admin/restaurant">
                       <MenubarItem>Restaurant</MenubarItem>
@@ -99,18 +85,17 @@ const Navbar = () => {
             )}
           </div>
 
-          {/* Actions */}
+          {/* Right Side */}
           <div className="flex items-center gap-4">
-            {/* Theme Toggle */}
+            {/* Theme */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="icon">
-                  <Sun className="h-5 w-5 transition-all dark:scale-0 dark:-rotate-90" />
-                  <Moon className="absolute h-5 w-5 scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
-                  <span className="sr-only">Toggle theme</span>
+                  <Sun className="h-5 w-5 dark:scale-0" />
+                  <Moon className="absolute h-5 w-5 scale-0 dark:scale-100" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
+              <DropdownMenuContent>
                 <DropdownMenuItem onClick={() => setTheme("light")}>
                   Light
                 </DropdownMenuItem>
@@ -124,24 +109,20 @@ const Navbar = () => {
             <Link to="/cart" className="relative">
               <ShoppingCart />
               {cart.length > 0 && (
-                <span className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center text-xs rounded-full bg-red-500 text-white">
+                <span className="absolute -top-2 -right-2 h-5 w-5 text-xs bg-red-500 text-white flex items-center justify-center rounded-full">
                   {cart.length}
                 </span>
               )}
             </Link>
 
-            {/* Conditional Login / Logout */}
-            {isHomePage && !user ? (
+            {/*  FIXED AUTH LOGIC */}
+            {!isAuthenticated || !user?.isVerified ? (
               <>
                 <Link to="/login">
-                  <Button className="bg-orange-500 hover:bg-orange-600">
-                    Login
-                  </Button>
+                  <Button className="bg-orange-500">Login</Button>
                 </Link>
                 <Link to="/signup">
-                  <Button className="bg-gray-500 hover:bg-gray-600">
-                    Register
-                  </Button>
+                  <Button className="bg-gray-500">Register</Button>
                 </Link>
               </>
             ) : (
@@ -150,16 +131,14 @@ const Navbar = () => {
                   <AvatarImage src={user?.profilePicture} />
                   <AvatarFallback>CN</AvatarFallback>
                 </Avatar>
+
                 {loading ? (
                   <Button disabled className="bg-orange-500">
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Please wait
                   </Button>
                 ) : (
-                  <Button
-                    onClick={logout}
-                    className="bg-orange-500 hover:bg-orange-600"
-                  >
+                  <Button onClick={logout} className="bg-orange-500">
                     Logout
                   </Button>
                 )}
@@ -168,7 +147,7 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* Mobile Navbar */}
+        {/* Mobile */}
         <div className="md:hidden">
           <MobileNavbar />
         </div>
@@ -179,136 +158,67 @@ const Navbar = () => {
 
 export default Navbar;
 
-// Mobile Navbar
 const MobileNavbar = () => {
-  const { user, logout, loading } = useUserStore();
+  const { user, logout, loading, isAuthenticated } = useUserStore();
+
   const { setTheme } = useThemeStore();
-  const location = useLocation(); // <-- detect path
-  const isHomePage = location.pathname === "/";
 
   const linkStyle =
-    "flex items-center gap-4 px-3 py-2 rounded-lg cursor-pointer font-medium transition " +
-    "hover:bg-gray-200 dark:hover:bg-gray-800 " +
-    "hover:text-gray-900 dark:hover:text-gray-100";
+    "flex items-center gap-4 px-3 py-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-800";
 
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button
-          size="icon"
-          variant="outline"
-          className="rounded-full bg-gray-200 dark:bg-gray-800 text-black dark:text-white hover:bg-gray-300 dark:hover:bg-gray-700"
-        >
+        <Button size="icon" variant="outline">
           <Menu size={18} />
         </Button>
       </SheetTrigger>
 
-      <SheetContent className="flex flex-col w-[85%] sm:w-90">
-        {/* Header */}
-        <SheetHeader className="flex flex-row items-center justify-between mt-2">
-          <SheetTitle className="text-lg font-extrabold">
-            <span className="text-orange-500">Food</span>
-            <span className="text-gray-800 dark:text-gray-100">Swift</span>
+      <SheetContent className="flex flex-col">
+        <SheetHeader>
+          <SheetTitle>
+            <span className="text-orange-500">Food</span>Swift
           </SheetTitle>
-
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="icon" className="mt-4">
-                <Sun className="h-5 w-5 transition-all dark:scale-0 dark:-rotate-90" />
-                <Moon className="absolute h-5 w-5 scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
-                <span className="sr-only">Toggle theme</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setTheme("light")}>
-                Light
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTheme("dark")}>
-                Dark
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
         </SheetHeader>
 
         <Separator className="my-3" />
 
-        {/* Navigation */}
-        <SheetDescription className="flex-1 space-y-1">
+        <SheetDescription className="flex-1 space-y-2">
           <Link to="/profile" className={linkStyle}>
-            <User />
-            <span>Profile</span>
+            <User /> Profile
           </Link>
 
           <Link to="/orders" className={linkStyle}>
-            <HandPlatter />
-            <span>Orders</span>
+            <HandPlatter /> Orders
           </Link>
 
           <Link to="/cart" className={linkStyle}>
-            <ShoppingCart />
-            <span>Cart (0)</span>
+            <ShoppingCart /> Cart
           </Link>
-
-          {user?.admin && (
-            <>
-              <Link to="/admin/menu" className={linkStyle}>
-                <SquareMenu />
-                <span>Menu</span>
-              </Link>
-
-              <Link to="/admin/restaurant" className={linkStyle}>
-                <UtensilsCrossed />
-                <span>Restaurant</span>
-              </Link>
-
-              <Link to="/admin/orders" className={linkStyle}>
-                <PackageCheck />
-                <span>Restaurant Orders</span>
-              </Link>
-            </>
-          )}
         </SheetDescription>
 
-        {/* Footer */}
-        <SheetFooter className="flex flex-col gap-4">
-          {isHomePage && !user ? (
-            <div className="flex flex-col gap-2">
+        <SheetFooter>
+          {/* FIXED MOBILE AUTH */}
+          {!isAuthenticated || !user?.isVerified ? (
+            <>
               <Link to="/login">
-                <Button className="bg-orange-500 hover:bg-orange-600 w-full">
-                  Login
-                </Button>
+                <Button className="w-full bg-orange-500">Login</Button>
               </Link>
               <Link to="/signup">
-                <Button className="bg-gray-500 hover:bg-gray-600 w-full">
-                  Register
-                </Button>
+                <Button className="w-full bg-gray-500">Register</Button>
               </Link>
-            </div>
+            </>
           ) : (
             <>
-              <div className="flex items-center gap-3">
-                <Avatar className="h-9 w-9">
-                  <AvatarImage src={user?.profilePicture} />
-                  <AvatarFallback>CN</AvatarFallback>
-                </Avatar>
-                <h1 className="font-bold">{user?.fullname}</h1>
-              </div>
-
-              <SheetClose asChild>
-                {loading ? (
-                  <Button disabled className="bg-orange-500">
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Please wait
-                  </Button>
-                ) : (
-                  <Button
-                    onClick={logout}
-                    className="bg-orange-500 hover:bg-orange-600"
-                  >
-                    Logout
-                  </Button>
-                )}
-              </SheetClose>
+              {loading ? (
+                <Button disabled className="bg-orange-500">
+                  <Loader2 className="animate-spin" />
+                </Button>
+              ) : (
+                <Button onClick={logout} className="bg-orange-500">
+                  Logout
+                </Button>
+              )}
             </>
           )}
         </SheetFooter>
