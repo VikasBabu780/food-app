@@ -4,7 +4,7 @@ import axios from "axios";
 import { toast } from "sonner";
 import { create } from "zustand";
 
-const API_END_POINT = "https://food-app-my1j.onrender.com/api/v1/restaurant";
+const API_END_POINT = "https://food-app-n8m4.vercel.app/api/v1/restaurant";
 axios.defaults.withCredentials = true;
 
 // Helper function for error handling

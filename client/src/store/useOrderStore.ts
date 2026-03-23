@@ -3,7 +3,7 @@ import axios from "axios";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
-const API_END_POINT = "https://food-app-my1j.onrender.com/api/v1/order";
+const API_END_POINT = "https://food-app-n8m4.vercel.app/api/v1/order";
 axios.defaults.withCredentials = true;
 
 export const useOrderSore = create<OrderState>()(

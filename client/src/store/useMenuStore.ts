@@ -4,7 +4,7 @@ import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { useRestaurantStore } from "./useRestaurantStore";
 
-const API_END_POINT = "https://food-app-my1j.onrender.com/api/v1/menu";
+const API_END_POINT = "https://food-app-n8m4.vercel.app/api/v1/menu";
 axios.defaults.withCredentials = true;
 
 // Define Menu type
