@@ -1,4 +1,4 @@
-import { resend } from "./mail.config";
+import { transporter } from "./mail.config";
 import {
   generatePasswordResetEmailHtml,
   generateResetSuccessEmailHtml,
@@ -6,79 +6,80 @@ import {
   htmlContent,
 } from "./htmlEmail";
 
-// For testing: "onboarding@resend.dev"
-// For production with your domain: "noreply@yourdomain.com"
-const FROM = "FoodSwift <onboarding@resend.dev>";
+// Use your Gmail as sender
+const FROM = `"FoodSwift" <${process.env.EMAIL_USER}>`;
 
 export const sendVerificationEmail = async (
   email: string,
   verificationToken: string
 ): Promise<void> => {
-  const { error } = await resend.emails.send({
-    from: FROM,
-    to: email,
-    subject: "Verify your email",
-    html: htmlContent.replace("{verificationToken}", verificationToken),
-  });
+  try {
+    await transporter.sendMail({
+      from: FROM,
+      to: email,
+      subject: "Verify your email",
+      html: htmlContent.replace("{verificationToken}", verificationToken),
+    });
 
-  if (error) {
-    console.error("❌ sendVerificationEmail failed:", error);
+    console.log(`Verification email sent to ${email}`);
+  } catch (error: any) {
+    console.error("endVerificationEmail failed:", error.message);
     throw new Error(error.message);
   }
-
-  console.log(`✅ Verification email sent to ${email}`);
 };
 
 export const sendWelcomeEmail = async (
   email: string,
   name: string
 ): Promise<void> => {
-  const { error } = await resend.emails.send({
-    from: FROM,
-    to: email,
-    subject: "Welcome to Food Swift",
-    html: generateWelcomeEmailHtml(name),
-  });
+  try {
+    await transporter.sendMail({
+      from: FROM,
+      to: email,
+      subject: "Welcome to Food Swift",
+      html: generateWelcomeEmailHtml(name),
+    });
 
-  if (error) {
-    console.error("❌ sendWelcomeEmail failed:", error);
+    console.log(`Welcome email sent to ${email}`);
+  } catch (error: any) {
+    console.error(" sendWelcomeEmail failed:", error.message);
     throw new Error(error.message);
   }
-
-  console.log(`✅ Welcome email sent to ${email}`);
 };
 
 export const sendPasswordResetEmail = async (
   email: string,
   resetURL: string
 ): Promise<void> => {
-  const { error } = await resend.emails.send({
-    from: FROM,
-    to: email,
-    subject: "Reset your password",
-    html: generatePasswordResetEmailHtml(resetURL),
-  });
+  try {
+    await transporter.sendMail({
+      from: FROM,
+      to: email,
+      subject: "Reset your password",
+      html: generatePasswordResetEmailHtml(resetURL),
+    });
 
-  if (error) {
-    console.error("❌ sendPasswordResetEmail failed:", error);
+    console.log(`Password reset email sent to ${email}`);
+  } catch (error: any) {
+    console.error("sendPasswordResetEmail failed:", error.message);
     throw new Error(error.message);
   }
-
-  console.log(`✅ Password reset email sent to ${email}`);
 };
 
-export const sendResetSuccessEmail = async (email: string): Promise<void> => {
-  const { error } = await resend.emails.send({
-    from: FROM,
-    to: email,
-    subject: "Password Reset Successfully",
-    html: generateResetSuccessEmailHtml(),
-  });
+export const sendResetSuccessEmail = async (
+  email: string
+): Promise<void> => {
+  try {
+    await transporter.sendMail({
+      from: FROM,
+      to: email,
+      subject: "Password Reset Successfully",
+      html: generateResetSuccessEmailHtml(),
+    });
 
-  if (error) {
-    console.error("❌ sendResetSuccessEmail failed:", error);
+    console.log(`eset success email sent to ${email}`);
+  } catch (error: any) {
+    console.error(" sendResetSuccessEmail failed:", error.message);
     throw new Error(error.message);
   }
-
-  console.log(`✅ Reset success email sent to ${email}`);
 };

@@ -1,7 +1,13 @@
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
 
-if (!process.env.RESEND_API_KEY) {
-  throw new Error("RESEND_API_KEY is missing");
+if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+  throw new Error("EMAIL_USER or EMAIL_PASS is missing");
 }
 
-export const resend = new Resend(process.env.RESEND_API_KEY);
+export const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
